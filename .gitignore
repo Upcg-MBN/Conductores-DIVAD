@@ -1,0 +1,10 @@
+# Repositorio publico (GitHub Pages): solo se versiona lo que carga el sitio.
+# fotos/ (exportaciones con nombres y referencias) y responsables.csv (la
+# tabla nombre -> alias) NUNCA se suben. Tampoco extraer.py, pruebas,
+# actualizar.ps1, CLAUDE.md ni logs/.
+/*
+!/.gitignore
+!/index.html
+!/datos.js
+!/agregar.js
+!/ds/
