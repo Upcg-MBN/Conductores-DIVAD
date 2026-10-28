@@ -100,7 +100,7 @@ button{font:inherit; color:inherit}
 .fila{display:flex; gap:1rem; flex:1; min-height:0}
 .fila > .ancho{flex:2 1 0}
 .fila > .angosto{flex:1 1 0}
-.fila--mitades > .tarjeta{flex:1 1 0}
+.fila--mitades > .tarjeta,.fila--tercios > .tarjeta,.fila--tabla > .tarjeta{flex:1 1 0}
 @media (min-width:1024px) and (min-height:600px){
   .datos--alto{flex:none; max-height:max(20rem, calc(100vh - 20rem))}
 }
@@ -150,6 +150,46 @@ button.barra-fila:hover{background:var(--gris-5)}
 .pista--apilada .relleno:last-child{border-radius:0 var(--radius-s) var(--radius-s) 0}
 .t0{background:var(--chart-seq-3)} .t1{background:var(--chart-seq-5)} .t2{background:var(--chart-seq-7)}
 .t3{background:var(--chart-seq-8)} .t4{background:var(--chart-seq-10)}
+
+/* ---------- Columnas ----------
+   Categorías ordenadas (tramos, años) en el eje X. Una serie: un azul. La
+   cifra va sobre la barra; la barra más alta llega al 88 % para dejarle aire. */
+.columnas{display:flex; gap:0.5rem; flex:1; min-height:9rem}
+.columna{flex:1 1 0; min-width:0; display:flex; flex-direction:column; gap:0.375rem; padding:0; border:0; background:none;
+  border-radius:var(--radius-s); font-size:max(12px,0.8125rem)}
+.columna-pista{position:relative; flex:1; border-bottom:1px solid var(--gris-30)}
+.columna-barra{position:absolute; left:50%; bottom:0; width:min(70%,3.5rem); transform:translateX(-50%);
+  background:var(--primario-darken-1); border-radius:var(--radius-s) var(--radius-s) 0 0}
+.columna-val{position:absolute; left:0; right:0; padding-bottom:2px; text-align:center; font-weight:500;
+  font-variant-numeric:tabular-nums; line-height:1.2}
+.columna-rot{display:flex; justify-content:center; align-items:flex-start; gap:0.25rem; min-height:2.5em;
+  text-align:center; line-height:1.25; color:var(--gris-60)}
+.columna-rot .ico{color:var(--chart-estado-alerta)}
+button.columna{cursor:pointer}
+button.columna:hover .columna-pista{background:var(--gris-5)}
+/* El grupo a depurar: mismo azul, rayado, y el ícono de alerta en el rótulo. */
+.columna--dep .columna-barra{background:repeating-linear-gradient(135deg, var(--primario-darken-1) 0 4px, var(--primario-lighten-3) 4px 7px)}
+.eje-tit{margin:0; font-size:max(11px,0.75rem); color:var(--gris-60); text-align:center}
+
+/* ---------- Lienzos SVG ----------
+   Se dibujan al tamaño de su caja (ResizeObserver): el texto no se deforma. */
+.lienzo{position:relative; flex:1; min-height:11rem}
+.lienzo svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible}
+.lienzo text{font-family:var(--font-sans); font-size:12px; fill:var(--chart-eje-texto)}
+.lienzo .grilla{stroke:var(--chart-grilla)}
+.lienzo .eje{stroke:var(--gris-30)}
+.lienzo .ref{stroke:var(--gris-50); stroke-dasharray:4 3}
+.lienzo .ref-rot{font-size:11px; fill:var(--gris-60)}
+.lienzo .linea{fill:none; stroke:var(--primario-darken-1); stroke-width:2.5}
+.lienzo .nodo{fill:var(--primario-darken-1); stroke:var(--blanco-base); stroke-width:2}
+.lienzo .val{font-weight:500; fill:var(--negro-text)}
+.lienzo .flujo{font-size:11px; fill:var(--gris-60)}
+.punto{cursor:pointer; outline:none}
+.punto circle{fill:var(--primario-darken-1); fill-opacity:.7; stroke:var(--blanco-base); stroke-width:1}
+.punto--ex circle{fill:var(--blanco-base); fill-opacity:1; stroke:var(--primario-darken-1); stroke-width:1.5}
+.punto:hover circle,.punto:focus-visible circle{fill-opacity:1; stroke:var(--negro-text); stroke-width:2}
+.punto[aria-pressed="true"] circle{fill-opacity:1; stroke:var(--negro-text); stroke-width:2.5}
+.punto text{font-size:11px; font-weight:500; fill:var(--negro-text)}
 
 /* ---------- Estados ----------
    Nunca solo color: ícono y etiqueta. El color va en el ícono; la etiqueta,
@@ -202,6 +242,11 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
   .cuerpo{min-height:0; overflow:hidden}
   .contenido{overflow:auto}
   .fila{min-height:26rem}
+  /* Resumen: tres gráficos bajos arriba; alertas y tabla toman el resto. */
+  .fila--tercios{flex:none; min-height:0; height:18rem}
+  #p-resumen > .fila:not(.fila--tercios){min-height:18rem}
+  #p-carga > .fila--tabla{flex:none; min-height:0; max-height:24rem}
+  .fila--tercios .lienzo,.fila--tercios .columnas{min-height:0}
 }
 @media (max-width:1599px){.btn-largo{display:none}}
 @media (max-width:1100px){
@@ -214,6 +259,9 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
   .fila{flex-direction:column; flex:none}
   .barras,.alertas{overflow:visible}
   .datos{flex:none; overflow-x:auto}
+  .columnas{flex:none; height:12rem}
+  .lienzo{flex:none; height:14rem}
+  #disp-graf{height:20rem}
 }
 @media (max-width:760px){
   .cab{padding:0.875rem 1rem; gap:0.5rem 0.75rem}
@@ -256,7 +304,7 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
 }
 
 /* ---------- Modo informe (Exportar PDF) ----------
-   Imprime las cinco páginas, una tras otra, con el filtro actual. */
+   Imprime resumen y carga, una tras otra, con el filtro actual. */
 .informe-cab{display:none}
 .informe{background:var(--blanco-base)}
 .informe .cab,.informe .filete,.informe .menu,.informe .filtros,.informe .barra-pie,.informe .tabla summary{display:none}
@@ -276,6 +324,9 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
 .informe .tarjeta:has(table){break-inside:auto}
 .informe .kpi-num{font-size:20pt}
 .informe .barras,.informe .alertas,.informe .datos{flex:none; overflow:visible; max-height:none}
+.informe .columnas{flex:none; height:45mm}
+.informe .lienzo{flex:none; height:55mm}
+.informe #disp-graf{height:80mm}
 .informe .tabla-caja{max-height:none; overflow:visible; margin-top:0}
 .informe .datos thead th,.informe .tabla thead th{position:static}
 .informe tr,.informe .alerta{break-inside:avoid}
@@ -316,8 +367,6 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
       </div>
       <button type="button" class="pag" data-pag="resumen" title="Resumen"><svg class="ico ico--24" viewBox="0 0 24 24" aria-hidden="true" data-i="dashboard"></svg><span class="txt">Resumen</span></button>
       <button type="button" class="pag" data-pag="carga" title="Carga por responsable"><svg class="ico ico--24" viewBox="0 0 24 24" aria-hidden="true" data-i="personas"></svg><span class="txt">Carga por responsable</span></button>
-      <button type="button" class="pag" data-pag="antiguedad" title="Antigüedad"><svg class="ico ico--24" viewBox="0 0 24 24" aria-hidden="true" data-i="reloj"></svg><span class="txt">Antigüedad</span></button>
-      <button type="button" class="pag" data-pag="tendencia" title="Tendencia"><svg class="ico ico--24" viewBox="0 0 24 24" aria-hidden="true" data-i="sube"></svg><span class="txt">Tendencia</span></button>
       <button type="button" class="pag" data-pag="detalle" title="Detalle de conductores"><svg class="ico ico--24" viewBox="0 0 24 24" aria-hidden="true" data-i="documento"></svg><span class="txt">Detalle de conductores</span></button>
       <div class="menu-pie">
         <button type="button" id="abrir-glosario" title="Glosario y reglas de alerta"><svg class="ico ico--22" viewBox="0 0 24 24" aria-hidden="true" data-i="ayuda"></svg><span class="txt">Glosario y reglas</span></button>
@@ -346,6 +395,26 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
       <!-- ------------------------------------------------------- Resumen -->
       <section class="pagina" id="p-resumen" aria-label="Resumen">
         <div class="kpis" id="kpis"></div>
+        <div class="fila fila--tercios">
+          <div class="tarjeta col">
+            <div class="t-cab"><h2>Conductores por días en trámite</h2></div>
+            <p class="t-sub">Desde que ingresó el conductor, al corte. Clic en una columna para ver esos conductores.</p>
+            <div class="columnas" id="ant-tramos"></div>
+            <details class="tabla" id="ant-tramos-tabla"></details>
+          </div>
+          <div class="tarjeta col">
+            <div class="t-cab"><h2>Conductores pendientes por año de ingreso</h2></div>
+            <p class="t-sub" id="ant-anio-sub"></p>
+            <div class="columnas" id="ant-anios"></div>
+            <details class="tabla" id="ant-anios-tabla"></details>
+          </div>
+          <div class="tarjeta col">
+            <div class="t-cab"><h2>Evolución del stock</h2></div>
+            <p class="t-sub">Stock por corte; bajo cada fecha, ingresos y egresos desde el corte anterior. Toda la división, sin filtros.</p>
+            <div class="lienzo" id="ten-graf"></div>
+            <details class="tabla" id="ten-tabla"></details>
+          </div>
+        </div>
         <div class="fila">
           <div class="tarjeta col angosto">
             <div class="t-cab"><h2>Alertas</h2></div>
@@ -370,43 +439,16 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
             <div class="barras" id="carga-barras"></div>
           </div>
           <div class="tarjeta col angosto">
+            <div class="t-cab"><h2>Volumen y antigüedad por responsable</h2></div>
+            <p class="t-sub" id="disp-sub"></p>
+            <div class="lienzo" id="disp-graf"></div>
+          </div>
+        </div>
+        <div class="fila fila--tabla">
+          <div class="tarjeta col">
             <div class="t-cab"><h2>Detalle por responsable</h2></div>
-            <p class="t-sub">Los responsables aparecen con un alias estable; los nombres no se publican. Clic en una barra para filtrar el panel por ese responsable.</p>
+            <p class="t-sub">Los responsables aparecen con un alias estable; los nombres no se publican. Tramos por días con el responsable. Clic en una barra o un punto para filtrar el panel por ese responsable.</p>
             <div class="datos" id="carga-tabla"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ------------------------------------------------------- Antigüedad -->
-      <section class="pagina" id="p-antiguedad" aria-label="Antigüedad" hidden>
-        <div class="fila fila--mitades">
-          <div class="tarjeta col">
-            <div class="t-cab"><h2>Conductores por días en trámite</h2></div>
-            <p class="t-sub">Días desde que ingresó el conductor, al corte. Clic en un tramo para ver esos conductores en el detalle.</p>
-            <div class="barras" id="ant-tramos"></div>
-            <details class="tabla" id="ant-tramos-tabla"></details>
-          </div>
-          <div class="tarjeta col">
-            <div class="t-cab"><h2>Conductores pendientes por año de ingreso</h2></div>
-            <p class="t-sub" id="ant-anio-sub"></p>
-            <div class="barras" id="ant-anios"></div>
-            <details class="tabla" id="ant-anios-tabla"></details>
-          </div>
-        </div>
-      </section>
-
-      <!-- ------------------------------------------------------- Tendencia -->
-      <section class="pagina" id="p-tendencia" aria-label="Tendencia" hidden>
-        <div class="fila">
-          <div class="tarjeta col angosto">
-            <div class="t-cab"><h2>Stock pendiente por corte</h2></div>
-            <p class="t-sub">Una foto por carga. Sin filtros: la serie es de toda la división.</p>
-            <div class="barras" id="ten-barras"></div>
-          </div>
-          <div class="tarjeta col ancho">
-            <div class="t-cab"><h2>Movimiento entre cortes</h2></div>
-            <p class="t-sub">Ingresos: conductores que no estaban en la foto anterior. Egresos: los que ya no están (respondidos o derivados fuera de la división; la foto no distingue). Reasignaciones: siguen pendientes, pero cambiaron de responsable.</p>
-            <div class="datos" id="ten-tabla"></div>
           </div>
         </div>
       </section>
@@ -501,6 +543,9 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
     return out;
   }
   var TRAMOS = rotTramos();
+  // Los mismos tramos, cortos, para el eje de las columnas y los encabezados.
+  var TRAMOS_C = D.tramos.map(function (t, i) { return i ? D.tramos[i - 1] + 1 + '–' + t : '≤ ' + t; })
+    .concat('> ' + ultimo(D.tramos));
 
   // ---- estado del panel ----
   var pagina = 'resumen';
@@ -523,7 +568,7 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
       e.innerHTML = ico('alerta') + 'Los datos tienen ' + dias + ' días: la carga mensual no se ha hecho.';
     } else {
       e.className = 'estado';
-      e.innerHTML = ico('calendario') + '<span>Corte: ' + fecha(b.corte) + ' · Exportación del sistema documental</span>';
+      e.innerHTML = ico('calendario') + '<span>Corte: ' + fecha(b.corte) + ' · Reporte del sistema de conductores</span>';
     }
   }
 
@@ -554,8 +599,8 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
       kpi('Mediana de días en trámite', num(k.medTramite), 'Mediana con el responsable actual: ' + num(k.medAsignado) + ' días', null, 'reloj'),
       kpi('Ingresos / egresos', mov, k.desde ? 'Desde el corte del ' + fecha(k.desde) + ' · ' + num(k.reasignaciones) + ' reasignados · toda la división'
           : 'Hace falta una segunda foto para medir el flujo', null, 'sube'),
-      kpi('Sin distribuir (bandeja)', num(k.bandeja), c.bandejas.length ? pct(k.pctBandeja) + ' del stock' : 'No hay bandejas marcadas en responsables.csv',
-          k.bandeja ? 'ambar' : null, 'correo'),
+      kpi('Para depurar', num(k.depurar), 'Ingresados en ' + R.antiguo + ' o antes: revisar si corresponde cerrarlos',
+          k.depurar ? 'ambar' : null, 'calendario'),
       kpi('Responsables con conductores', num(k.responsables), 'Mediana del equipo: ' + num(c.medianaEquipo) + ' conductores', null, 'personas')
     ].join('');
 
@@ -567,6 +612,8 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
 
     $('antiguos-tit').textContent = 'Los ' + R.topN + ' conductores más antiguos con el mismo responsable';
     $('antiguos').innerHTML = tablaConductores(AGG.masAntiguos(fs));
+    pintarAntiguedad(fs);
+    pintarTendencia();
   }
 
   function tablaConductores(fs) {
@@ -603,51 +650,170 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
         '<span>' + barraApilada(x.porTramo, x.n, max) + '</span>' +
         '<span class="barra-val">' + num(x.n) + '<small>' + num(x.criticos) + ' críticos</small></span></button>';
     }).join('') : '<p class="vacio">Sin conductores para este filtro.</p>';
-    $('carga-tabla').innerHTML = tablaHtml(['Responsable', 'Rol', 'Conductores', 'Mediana días', 'En alerta', 'Críticos', 'Carga'],
+    $('carga-tabla').innerHTML = tablaHtml(['Responsable', 'Conductores', 'Mediana días', 'En alerta', 'Críticos', 'Carga']
+      .concat(TRAMOS_C.map(function (t) { return t + ' días'; })),
       todos.map(function (x) {
-        return [esc(x.alias) + (x.activo ? '' : ' (ya no está)'), x.rol, num(x.n), num(x.medAsignado), num(x.alerta), num(x.criticos),
-                x.cargaAlta ? sem('alerta', 'Alta') : x.rol === 'bandeja' ? '—' : 'Normal'];
-      }), true, [1]);
+        return [esc(x.alias) + (x.activo ? '' : ' (ya no está)'), num(x.n), num(x.medAsignado), num(x.alerta), num(x.criticos),
+                x.cargaAlta ? sem('alerta', 'Alta') : x.rol === 'bandeja' ? '—' : 'Normal'].concat(x.porTramo.map(num));
+      }), true);
+    $('disp-sub').textContent = 'Cada punto es un responsable: cuántos conductores tiene y hace cuánto los tiene (mediana de días con él). ' +
+      'Arriba a la derecha, mucho y antiguo. Punto hueco: ya no está.';
+    dibujarDispersion();
+  }
+
+  // ------------------------------------------------- gráficos (SVG a mano)
+  function svg(W, H, cuerpo) {
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '">' + cuerpo + '</svg>';
+  }
+  // Marcas «redondas» de 0 hasta cubrir max: 1, 2 o 5 × 10^n.
+  function marcas(max, n) {
+    max = Math.max(max, 1);
+    var paso = Math.pow(10, Math.floor(Math.log10(max / n))), e = max / n / paso;
+    paso *= e >= 7.5 ? 10 : e >= 3.5 ? 5 : e >= 1.5 ? 2 : 1;
+    var out = [];
+    for (var v = 0; v < max + paso; v += paso) out.push(v);
+    return out;
+  }
+  function grillaY(t, y, x0, x1) {
+    return t.map(function (v) {
+      return '<line class="grilla" x1="' + x0 + '" x2="' + x1 + '" y1="' + y(v) + '" y2="' + y(v) + '"/>' +
+        '<text x="' + (x0 - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + num(v) + '</text>';
+    }).join('');
+  }
+
+  // Columnas HTML: [{k, rot, n, tit, dep}]; con attr, cada una es un botón.
+  function columnas(items, attr) {
+    var max = Math.max.apply(null, items.map(function (x) { return x.n; }).concat(1));
+    return items.map(function (x) {
+      var h = 88 * x.n / max;
+      var dentro = '<span class="columna-pista"><span class="columna-barra" style="height:' + h + '%"></span>' +
+        '<span class="columna-val" style="bottom:' + h + '%">' + num(x.n) + '</span></span>' +
+        '<span class="columna-rot">' + (x.dep ? ico('alerta', 'ico--16') : '') + esc(x.rot) + '</span>';
+      var cls = 'columna' + (x.dep ? ' columna--dep' : '');
+      return attr ? '<button type="button" class="' + cls + '" ' + attr + '="' + x.k + '" title="' + esc(x.tit) + '">' + dentro + '</button>'
+                  : '<div class="' + cls + '" title="' + esc(x.tit) + '">' + dentro + '</div>';
+    }).join('');
   }
 
   // ------------------------------------------------------------ antigüedad
-  function barrasSimples(items, attr) {
-    var max = Math.max.apply(null, items.map(function (x) { return x.n; }).concat(1));
-    return items.map(function (x) {
-      var dentro = '<span class="barra-nom">' + esc(x.rot) + '</span><span class="pista"><span class="relleno" style="width:' +
-        (100 * x.n / max) + '%"></span></span><span class="barra-val">' + num(x.n) + (x.pie ? '<small>' + x.pie + '</small>' : '') + '</span>';
-      return attr ? '<button type="button" class="barra-fila" ' + attr + '="' + x.k + '">' + dentro + '</button>'
-                  : '<div class="barra-fila">' + dentro + '</div>';
-    }).join('');
-  }
-  function pintarAntiguedad() {
-    var fs = filas(), a = AGG.antiguedad(D, fs), tot = fs.length || 1;
-    var tr = a.porTramo.map(function (n, i) { return { k: i, rot: TRAMOS[i], n: n, pie: pct(n / tot) }; });
-    $('ant-tramos').innerHTML = barrasSimples(tr, 'data-tramo');
+  function pintarAntiguedad(fs) {
+    var a = AGG.antiguedad(D, fs), tot = fs.length || 1;
+    var tr = a.porTramo.map(function (n, i) {
+      return { k: i, rot: TRAMOS_C[i], n: n, tit: TRAMOS[i] + ' en trámite: ' + num(n) + ' (' + pct(n / tot) + ')' };
+    });
+    $('ant-tramos').innerHTML = columnas(tr, 'data-tramo');
     tablaDe($('ant-tramos-tabla'), 'Ver tabla de datos', ['Días en trámite', 'Conductores', '% del stock'],
-      tr.map(function (x) { return [x.rot, num(x.n), x.pie]; }));
+      tr.map(function (x, i) { return [TRAMOS[i], num(x.n), pct(x.n / tot)]; }));
+    // Los años hasta el de depuración van juntos en una columna rayada: son
+    // pocos conductores repartidos en muchos años, y lo que importa es cuántos
+    // hay que revisar. El detalle por año queda en la tabla.
     var viejos = a.porAnio.filter(function (x) { return x.anio <= R.antiguo; }).reduce(function (s, x) { return s + x.n; }, 0);
     $('ant-anio-sub').textContent = 'Año en que ingresó cada conductor que sigue pendiente. ' + num(viejos) +
       ' ingresaron en ' + R.antiguo + ' o antes: candidatos a revisar si corresponde cerrarlos.';
-    var an = a.porAnio.map(function (x) { return { k: x.anio, rot: String(x.anio), n: x.n }; });
-    $('ant-anios').innerHTML = barrasSimples(an);
+    var an = (viejos ? [{ rot: R.antiguo + ' o antes', n: viejos, dep: true,
+      tit: num(viejos) + ' conductores ingresados en ' + R.antiguo + ' o antes: a depurar' }] : [])
+      .concat(a.porAnio.filter(function (x) { return x.anio > R.antiguo; }).map(function (x) {
+        return { rot: String(x.anio), n: x.n, tit: 'Ingresados en ' + x.anio + ': ' + num(x.n) };
+      }));
+    $('ant-anios').innerHTML = columnas(an);
     tablaDe($('ant-anios-tabla'), 'Ver tabla de datos', ['Año de ingreso', 'Conductores'],
-      an.map(function (x) { return [x.rot, num(x.n)]; }));
+      a.porAnio.map(function (x) { return [String(x.anio), num(x.n)]; }));
   }
 
   // ------------------------------------------------------------ tendencia
   function pintarTendencia() {
     var cs = B().cortes;
-    $('ten-barras').innerHTML = barrasSimples(cs.map(function (c) {
-      return { rot: fecha(c.corte), n: c.stock };
-    }));
-    $('ten-tabla').innerHTML = tablaHtml(['Corte', 'Stock', 'Ingresos', 'Egresos', 'Reasignaciones'].concat(D.estados.map(function (e) {
+    tablaDe($('ten-tabla'), 'Ver tabla de datos', ['Corte', 'Stock', 'Ingresos', 'Egresos', 'Reasignaciones'].concat(D.estados.map(function (e) {
       return e.charAt(0) + e.slice(1).toLowerCase();
-    })).concat(TRAMOS.map(function (t) { return t + ' en trámite'; })),
+    })).concat(TRAMOS_C.map(function (t) { return t + ' días en trámite'; })),
       cs.slice().reverse().map(function (c) {
         return [fecha(c.corte), num(c.stock), num(c.ingresos), num(c.egresos), num(c.reasignaciones)]
           .concat(c.porEstado.map(num)).concat(c.porTramo.map(num));
       }));
+    dibujarEvolucion();
+  }
+  // Línea del stock por corte, con el eje desde cero: una variación de diez
+  // conductores sobre ochocientos no tiene que verse como un desplome. El eje
+  // X es de fechas reales: los cortes no llegan a intervalos fijos.
+  function dibujarEvolucion() {
+    var caja = $('ten-graf'), W = caja.clientWidth, H = caja.clientHeight, cs = B().cortes;
+    if (!W || !H) return;
+    var m = { l: 44, r: 24, t: 22, b: 40 };
+    var t = marcas(Math.max.apply(null, cs.map(function (c) { return c.stock; })) * 1.1, H < 200 ? 2 : 3), yMax = ultimo(t);
+    var dia = function (c) { return Date.parse(c.corte); };
+    var d0 = dia(cs[0]), d1 = dia(ultimo(cs));
+    var x = function (c) { return d1 > d0 ? m.l + (W - m.l - m.r) * (dia(c) - d0) / (d1 - d0) : (m.l + W - m.r) / 2; };
+    var y = function (v) { return m.t + (H - m.t - m.b) * (1 - v / yMax); };
+    var g = grillaY(t, y, m.l, W - m.r);
+    g += '<path class="linea" d="' + cs.map(function (c, i) { return (i ? 'L' : 'M') + x(c) + ' ' + y(c.stock); }).join('') + '"/>';
+    cs.forEach(function (c, i) {
+      var ancla = cs.length > 1 && i === 0 ? 'start' : cs.length > 1 && i === cs.length - 1 ? 'end' : 'middle';
+      g += '<circle class="nodo" r="5" cx="' + x(c) + '" cy="' + y(c.stock) + '"><title>' + fecha(c.corte) + ': ' + num(c.stock) + ' conductores</title></circle>' +
+        '<text class="val" x="' + x(c) + '" y="' + (y(c.stock) - 10) + '" text-anchor="' + ancla + '">' + num(c.stock) + '</text>' +
+        '<text x="' + x(c) + '" y="' + (H - m.b + 18) + '" text-anchor="' + ancla + '">' + fecha(c.corte).slice(0, 5) + '</text>' +
+        (c.ingresos === null ? '' : '<text class="flujo" x="' + x(c) + '" y="' + (H - m.b + 33) + '" text-anchor="' + ancla + '">+' +
+          num(c.ingresos) + ' / −' + num(c.egresos) + '</text>');
+    });
+    caja.innerHTML = svg(W, H, g);
+    caja.firstChild.setAttribute('role', 'img');
+    caja.firstChild.setAttribute('aria-label', 'Stock por corte: ' + cs.map(function (c) { return fecha(c.corte) + ' ' + num(c.stock); }).join(', '));
+  }
+
+  // Dispersión por responsable: X conductores, Y mediana de días con el
+  // responsable. Referencias: carga alta (vertical) y alerta y crítico
+  // (horizontales). Grilla solo horizontal, como el resto del sistema.
+  function dibujarDispersion() {
+    var caja = $('disp-graf'), W = caja.clientWidth, H = caja.clientHeight;
+    if (!W || !H) return;
+    var c = AGG.carga(D, B(), filas()), ps = c.personas.concat(c.bandejas);
+    if (!ps.length) { caja.innerHTML = '<p class="vacio">Sin conductores para este filtro.</p>'; return; }
+    var m = { l: 48, r: 16, t: 28, b: 40 }, lim = R.cargaFactor * (c.medianaEquipo || 0);
+    var nMax = Math.max.apply(null, ps.map(function (p) { return p.n; }).concat(lim));
+    // Escala logarítmica cuando uno solo aplasta al resto (DIVAD: un
+    // responsable con 4.000 y una mediana de 8). Lineal en los demás casos.
+    var log = nMax > 20 * Math.max(c.medianaEquipo || 1, 1), tx;
+    if (log) { tx = [1]; while (ultimo(tx) < nMax) tx.push(ultimo(tx) * 10); }
+    else tx = marcas(nMax * 1.05, 4);
+    var ty = marcas(Math.max.apply(null, ps.map(function (p) { return p.medAsignado; }).concat(R.critico)) * 1.05, 4);
+    var x = log ? function (v) { return m.l + (W - m.l - m.r) * Math.log10(Math.max(v, 1)) / Math.log10(ultimo(tx)); }
+                : function (v) { return m.l + (W - m.l - m.r) * v / ultimo(tx); };
+    var y = function (v) { return m.t + (H - m.t - m.b) * (1 - v / ultimo(ty)); };
+    var g = grillaY(ty, y, m.l, W - m.r);
+    g += '<line class="eje" x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(0) + '" y2="' + y(0) + '"/>';
+    g += tx.map(function (v) { return '<text x="' + x(v) + '" y="' + (y(0) + 16) + '" text-anchor="middle">' + num(v) + '</text>'; }).join('');
+    g += '<text x="' + (W - m.r) + '" y="' + (H - 4) + '" text-anchor="end">Conductores' + (log ? ' (escala logarítmica)' : '') + ' →</text>';
+    g += '<text x="' + m.l + '" y="12" text-anchor="start" class="ref-rot">↑ Mediana de días con el responsable</text>';
+    [[R.alerta, 'Alerta ' + R.alerta + ' días'], [R.critico, 'Crítico ' + R.critico + ' días']].forEach(function (r) {
+      g += '<line class="ref" x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(r[0]) + '" y2="' + y(r[0]) + '"/>' +
+        '<text class="ref-rot" x="' + (W - m.r - 4) + '" y="' + (y(r[0]) - 4) + '" text-anchor="end">' + r[1] + '</text>';
+    });
+    if (lim) {
+      g += '<line class="ref" x1="' + x(lim) + '" x2="' + x(lim) + '" y1="' + m.t + '" y2="' + y(0) + '"/>' +
+        '<text class="ref-rot" x="' + (x(lim) + 4) + '" y="' + (y(0) - 6) + '">Carga alta →</text>';
+    }
+    // Los cinco más cargados llevan su alias a la vista; el resto, al pasar el
+    // mouse. El rótulo va hacia el centro del gráfico, para no salirse.
+    var rotulados = ps.slice(0).sort(function (a, b) { return b.n - a.n; }).slice(0, 5).map(function (p) { return p.i; });
+    ps.slice().sort(function (a, b) { return a.n - b.n; }).forEach(function (p) {
+      var izq = x(p.n) > (m.l + W - m.r) / 2;
+      g += '<g class="punto' + (p.activo ? '' : ' punto--ex') + '" data-resp="' + p.i + '" tabindex="0" role="button" aria-pressed="' +
+        (filtro.resp === p.i) + '" aria-label="' + esc(p.alias + ': ' + num(p.n) + ' conductores, mediana ' + num(p.medAsignado) + ' días') + '">' +
+        '<title>' + esc(p.alias + (p.activo ? '' : ' (ya no está)') + ': ' + num(p.n) + ' conductores, mediana ' + num(p.medAsignado) + ' días') + '</title>' +
+        '<circle r="' + (filtro.resp === p.i ? 7 : 5.5) + '" cx="' + x(p.n) + '" cy="' + y(p.medAsignado) + '"/>' +
+        (rotulados.indexOf(p.i) >= 0 ? '<text x="' + (x(p.n) + (izq ? -9 : 9)) + '" y="' + (y(p.medAsignado) + 4) + '" text-anchor="' +
+          (izq ? 'end' : 'start') + '">' + esc(p.alias) + '</text>' : '') + '</g>';
+    });
+    caja.innerHTML = svg(W, H, g);
+    caja.firstChild.setAttribute('aria-label', 'Dispersión de responsables por conductores y mediana de días; los datos están en la tabla Detalle por responsable');
+  }
+
+  // Los lienzos se redibujan cuando cambia su caja: al abrir su página, al
+  // achicar la ventana o al retraer el menú.
+  var LIENZOS = { 'ten-graf': dibujarEvolucion, 'disp-graf': dibujarDispersion };
+  function redibujar() { Object.keys(LIENZOS).forEach(function (id) { LIENZOS[id](); }); }
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(function (es) { es.forEach(function (e) { LIENZOS[e.target.id](); }); });
+    Object.keys(LIENZOS).forEach(function (id) { ro.observe($(id)); });
   }
 
   // -------------------------------------------------------------- detalle
@@ -681,8 +847,6 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
     pintarCab();
     pintarResumen();
     pintarCarga();
-    pintarAntiguedad();
-    pintarTendencia();
     pintarDetalle();
     $('f-reset').hidden = filtro.estado === null && filtro.resp === null && filtro.tramo === null;
     $('i-meta').textContent = NOMBRE[div] + ' · Corte ' + fecha(B().corte) + ' · ' + descFiltro() + ' · Generado ' + fechaHora(D.generado);
@@ -742,23 +906,27 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
   $('f-reset').addEventListener('click', function () {
     filtro = { estado: null, resp: null, tramo: null }; construirFiltros(); pintar();
   });
-  // Clic en una barra de responsable: filtra por él; otro clic lo suelta.
-  // Clic en un tramo de antigüedad: va al detalle con ese tramo.
+  // Clic en una barra o un punto de responsable: filtra por él; otro clic lo
+  // suelta. Clic en un tramo de antigüedad: va al detalle con ese tramo.
   document.addEventListener('click', function (ev) {
-    var b = ev.target.closest('button.barra-fila[data-resp]');
+    var b = ev.target.closest('[data-resp]');
     if (b) {
-      var i = +b.getAttribute('data-resp');
+      var i = +b.getAttribute('data-resp'), donde = b.closest('.barras, .lienzo');
       filtro.resp = filtro.resp === i ? null : i;
       construirFiltros(); pintar();
-      var mismo = $('carga-barras').querySelector('[data-resp="' + i + '"]');
+      var mismo = donde && donde.querySelector('[data-resp="' + i + '"]');
       if (mismo) mismo.focus();
       return;
     }
-    var t = ev.target.closest('button.barra-fila[data-tramo]');
+    var t = ev.target.closest('[data-tramo]');
     if (t) {
       filtro.tramo = +t.getAttribute('data-tramo');
       construirFiltros(); pintar(); irA('detalle', true);
     }
+  });
+  // Los puntos de la dispersión son <g role="button">: Enter y espacio, como un botón.
+  $('disp-graf').addEventListener('keydown', function (ev) {
+    if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.classList.contains('punto')) { ev.preventDefault(); ev.target.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
   });
   $('f-abrir').addEventListener('click', function () {
     $('filtros').classList.add('abierto'); this.setAttribute('aria-expanded', 'true');
@@ -789,7 +957,9 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
     ['Depuración',
      'Conductores ingresados en ' + R.antiguo + ' o antes que siguen pendientes. Muchos probablemente se respondieron por otra vía y nunca se cerraron en el sistema: conviene revisarlos con la división antes de leer las cifras de antigüedad como atraso real.'],
     ['Fuente',
-     'Exportación CSV del sistema documental, descargada a mano una vez al mes. La referencia (el asunto) de cada conductor no se publica: trae materias reservadas y nombres de terceros.']
+     'Reporte CSV de conductores en trámite, descargado a mano de la vista de reportes del sistema de conductores, por división. La materia (el asunto) de cada conductor no se publica: trae materias reservadas y nombres de terceros.'],
+    ['Responsable «ya no está»',
+     'El responsable aparece en la planilla de dotación de Gestión de Personas como inactivo (con fecha de término), pero el sistema todavía le tiene conductores asignados: nadie los reasignó. La dotación usada tiene corte al 31-08-2026; quien salió después todavía figura como activo.']
   ];
   $('glo-lista').innerHTML = GLOSARIO.map(function (g) {
     return '<dt>' + esc(g[0]) + '</dt><dd>' + esc(g[1]) + '</dd>';
@@ -822,13 +992,15 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
   });
 
   // ------------------------------------------------------------ exportar PDF
-  // Resumen, carga, antigüedad y tendencia con el filtro actual. El detalle
-  // (miles de filas) queda fuera: para eso está el CSV.
+  // Resumen y carga con el filtro actual. El detalle (miles de filas) queda
+  // fuera: para eso está el CSV.
   $('pdf').addEventListener('click', function () {
     var abiertos = [];
     Array.prototype.forEach.call(document.querySelectorAll('details:not([open])'), function (d) { d.open = true; abiertos.push(d); });
     document.body.classList.add('informe');
     Array.prototype.forEach.call(document.querySelectorAll('.pagina'), function (s) { s.hidden = false; });
+    // El ResizeObserver avisa después de imprimir: los lienzos se dibujan ya.
+    redibujar();
     window.print();
     document.body.classList.remove('informe');
     abiertos.forEach(function (d) { d.open = false; });

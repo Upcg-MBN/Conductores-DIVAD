@@ -48,7 +48,7 @@
   function esBandeja(B, i) { return B.responsables[i].rol === 'bandeja'; }
 
   // f = { estado, resp, tramo }: índices o null. El tramo es por días en
-  // trámite, igual que la página Antigüedad.
+  // trámite, igual que las columnas de antigüedad del Resumen.
   function filtrar(D, B, f) {
     f = f || {};
     return B.filas.filter(function (r) {
@@ -105,6 +105,7 @@
       pctCriticos: filas.length ? criticos / filas.length : null,
       medTramite: mediana(tram), medAsignado: mediana(asig),
       bandeja: bandeja, pctBandeja: filas.length ? bandeja / filas.length : null,
+      depurar: filas.filter(function (r) { return +r[F.fecha].slice(0, 4) <= REGLAS.antiguo; }).length,
       responsables: Object.keys(conStock).length,
       ingresos: u.ingresos, egresos: u.egresos, reasignaciones: u.reasignaciones,
       desde: B.cortes.length > 1 ? B.cortes[B.cortes.length - 2].corte : null
