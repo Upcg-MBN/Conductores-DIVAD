@@ -222,16 +222,21 @@ button.columna:hover .columna-pista,.columna[aria-pressed="true"] .columna-pista
 .alerta-dim{font-size:max(11px,0.75rem); font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gris-60)}
 
 /* ---------- Tablas ---------- */
-.tabla summary{font-size:0.875rem; font-weight:500; color:var(--primario-darken-1); cursor:pointer; width:max-content; border-radius:var(--radius-s)}
+.tabla-alt{display:flex; align-items:center; gap:0.375rem; padding:0; border:0; background:none; font-size:0.875rem; font-weight:500;
+  color:var(--primario-darken-1); cursor:pointer; width:max-content; border-radius:var(--radius-s)}
+.tabla-alt::before{content:""; border:5px solid transparent; border-left:7px solid currentColor; border-right:0}
+.tabla.abierta .tabla-alt::before{border:5px solid transparent; border-top:7px solid currentColor; border-bottom:0}
+.tabla .tabla-caja{display:none}
+.tabla.abierta .tabla-caja,.informe .tabla .tabla-caja{display:block}
 .tabla-caja{max-height:17.5rem; overflow:auto; margin-top:0.5rem}
 .tabla th,.tabla td{white-space:nowrap}
 /* «Ver tabla de datos» cambia el gráfico por su tabla en el mismo lugar, en
    vez de empujarlo: la tarjeta no cambia de alto. En el PDF van los dos. */
-.tabla .ver-graf,.tabla[open] .ver-tabla{display:none}
-.tabla[open] .ver-graf{display:inline}
-body:not(.informe) .tarjeta:has(> .tabla[open]) > :is(.columnas,.lienzo){display:none}
-body:not(.informe) .tabla[open]{flex:1; min-height:0; display:flex; flex-direction:column}
-body:not(.informe) .tabla[open] .tabla-caja{flex:1; min-height:0; max-height:none}
+.tabla .ver-graf,.tabla.abierta .ver-tabla{display:none}
+.tabla.abierta .ver-graf{display:inline}
+body:not(.informe) .tarjeta:has(> .tabla.abierta) > :is(.columnas,.lienzo){display:none}
+body:not(.informe) .tabla.abierta{flex:1; min-height:0; display:flex; flex-direction:column}
+body:not(.informe) .tabla.abierta .tabla-caja{flex:1; min-height:0; max-height:none}
 .tabla table,.datos table{border-collapse:collapse; width:100%; font-size:max(12px,0.8125rem); background:var(--blanco-base)}
 .tabla thead th,.datos thead th{position:sticky; top:0; background:var(--primario-darken-1); color:var(--blanco-base);
   text-align:right; padding:0.4375rem 0.625rem; font-weight:700}
@@ -329,7 +334,7 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
    Imprime resumen y carga, una tras otra, con el filtro actual. */
 .informe-cab{display:none}
 .informe{background:var(--blanco-base)}
-.informe .cab,.informe .filete,.informe .menu,.informe .filtros,.informe .barra-pie,.informe .tabla summary{display:none}
+.informe .cab,.informe .filete,.informe .menu,.informe .filtros,.informe .barra-pie,.informe .tabla-alt{display:none}
 .informe .pagina::before{content:attr(aria-label); font:700 13pt/1.2 var(--font-sans); color:var(--primario-darken-2);
   padding-bottom:1.5mm; border-bottom:1px solid var(--gris-20)}
 .informe .app,.informe .cuerpo{display:block; min-height:0; height:auto; overflow:visible}
@@ -427,19 +432,19 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
             <div class="t-cab"><h2>Conductores por días en trámite</h2></div>
             <p class="t-sub">Desde que ingresó el conductor, al corte. Clic en una columna para ver esos conductores.</p>
             <div class="columnas" id="ant-tramos"></div>
-            <details class="tabla" id="ant-tramos-tabla"></details>
+            <div class="tabla" id="ant-tramos-tabla"></div>
           </div>
           <div class="tarjeta col">
             <div class="t-cab"><h2>Conductores pendientes por año de ingreso</h2></div>
             <p class="t-sub">Año en que ingresó cada conductor que sigue pendiente. Clic en una columna para filtrar el panel por ese año.</p>
             <div class="columnas" id="ant-anios"></div>
-            <details class="tabla" id="ant-anios-tabla"></details>
+            <div class="tabla" id="ant-anios-tabla"></div>
           </div>
           <div class="tarjeta col">
             <div class="t-cab"><h2>Evolución del stock</h2></div>
             <p class="t-sub">Stock por corte; bajo cada fecha, ingresos y egresos desde el corte anterior. Toda la división, sin filtros.</p>
             <div class="lienzo" id="ten-graf"></div>
-            <details class="tabla" id="ten-tabla"></details>
+            <div class="tabla" id="ten-tabla"></div>
           </div>
         </div>
         <div class="fila">
@@ -877,12 +882,20 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
       }).join('') + '</tr>';
     }).join('') + '</tbody></table>';
   }
+  // Botón que cambia el gráfico por su tabla en el mismo lugar; el estado
+  // (clase «abierta» del contenedor) sobrevive al repintar.
   function tablaDe(det, rotulo, cols, fs) {
-    var abierto = det.hasAttribute('open');
-    det.innerHTML = '<summary><span class="ver-tabla">' + rotulo + '</span><span class="ver-graf">Ver gráfico</span></summary>' +
+    det.innerHTML = '<button type="button" class="tabla-alt" aria-expanded="' + det.classList.contains('abierta') + '">' +
+      '<span class="ver-tabla">' + rotulo + '</span><span class="ver-graf">Ver gráfico</span></button>' +
       '<div class="tabla-caja">' + tablaHtml(cols, fs) + '</div>';
-    if (abierto) det.setAttribute('open', '');
   }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('.tabla-alt');
+    if (!b) return;
+    var abierta = b.parentNode.classList.toggle('abierta');
+    b.setAttribute('aria-expanded', String(abierta));
+    redibujar();
+  });
 
   // --------------------------------------------------------------- pintar
   function pintar() {
@@ -1068,15 +1081,12 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
   // Resumen y carga con el filtro actual. El detalle (miles de filas) queda
   // fuera: para eso está el CSV.
   $('pdf').addEventListener('click', function () {
-    var abiertos = [];
-    Array.prototype.forEach.call(document.querySelectorAll('details:not([open])'), function (d) { d.open = true; abiertos.push(d); });
     document.body.classList.add('informe');
     Array.prototype.forEach.call(document.querySelectorAll('.pagina'), function (s) { s.hidden = false; });
     // El ResizeObserver avisa después de imprimir: los lienzos se dibujan ya.
     redibujar();
     window.print();
     document.body.classList.remove('informe');
-    abiertos.forEach(function (d) { d.open = false; });
     Array.prototype.forEach.call(document.querySelectorAll('.pagina'), function (s) { s.hidden = s.id !== 'p-' + pagina; });
   });
 
