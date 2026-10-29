@@ -47,14 +47,24 @@
 
   function esBandeja(B, i) { return B.responsables[i].rol === 'bandeja'; }
 
-  // f = { estado, resp, tramo }: índices o null. El tramo es por días en
-  // trámite, igual que las columnas de antigüedad del Resumen.
+  // f = { estado, resp, tramo, sem, anio, sit, nro }; null = sin filtro.
+  //   estado, resp, tramo: índices. El tramo es por días en trámite, igual
+  //     que las columnas de antigüedad del Resumen.
+  //   sem: 'bueno' | 'alerta' | 'critico', por días con el responsable.
+  //   anio: año de ingreso, o 'dep' para los ingresados hasta REGLAS.antiguo.
+  //   sit: 'activo' | 'ex' (el responsable ya no está).
+  //   nro: texto; el N° de conductor tiene que contenerlo.
   function filtrar(D, B, f) {
     f = f || {};
     return B.filas.filter(function (r) {
+      var a = +r[F.fecha].slice(0, 4);
       return (f.estado == null || r[F.estado] === f.estado) &&
              (f.resp == null || r[F.resp] === f.resp) &&
-             (f.tramo == null || tramo(r[F.tramite], D.tramos) === f.tramo);
+             (f.tramo == null || tramo(r[F.tramite], D.tramos) === f.tramo) &&
+             (f.sem == null || estadoDias(r[F.asignado]) === f.sem) &&
+             (f.anio == null || (f.anio === 'dep' ? a <= REGLAS.antiguo : a === f.anio)) &&
+             (f.sit == null || B.responsables[r[F.resp]].activo === (f.sit === 'activo')) &&
+             (!f.nro || String(r[F.nro]).indexOf(f.nro) >= 0);
     });
   }
 
