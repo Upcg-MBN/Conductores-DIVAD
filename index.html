@@ -512,9 +512,10 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
 (function () {
   'use strict';
 
-  // Carga mensual: un mes y unos días de margen. Pasado esto, el panel avisa
-  // que la actualización del mes no se hizo.
-  var DIAS_FRESCO = 35;
+  // Descarga diaria (desde 06-11-2026): 4 días cubren un fin de semana con el
+  // equipo apagado. Pasado esto, el panel avisa
+  // que la descarga no se hizo.
+  var DIAS_FRESCO = 4;
   var D = window.DATOS, F = AGG.F, R = AGG.REGLAS;
   var $ = function (id) { return document.getElementById(id); };
   // Un proyecto por división (conductores-dijur, conductores-divad): este
@@ -608,7 +609,7 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
     var dias = Math.floor((Date.now() - new Date(D.generado).getTime()) / 864e5), e = $('estado');
     if (dias > DIAS_FRESCO) {
       e.className = 'estado estado--alerta';
-      e.innerHTML = ico('alerta') + 'Los datos tienen ' + dias + ' días: la carga mensual no se ha hecho.';
+      e.innerHTML = ico('alerta') + 'Los datos tienen ' + dias + ' días: la descarga diaria no se ha hecho.';
     } else {
       e.className = 'estado';
       e.innerHTML = ico('calendario') + '<span>Corte: ' + fecha(b.corte) + ' · Reporte del sistema de conductores</span>';
@@ -1046,7 +1047,7 @@ dialog dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem}
     ['Depuración',
      'Conductores ingresados en ' + R.antiguo + ' o antes que siguen pendientes. Muchos probablemente se respondieron por otra vía y nunca se cerraron en el sistema: conviene revisarlos con la división antes de leer las cifras de antigüedad como atraso real.'],
     ['Fuente',
-     'Reporte CSV de conductores en trámite, descargado a mano de la vista de reportes del sistema de conductores, por división. La materia (el asunto) de cada conductor no se publica: trae materias reservadas y nombres de terceros.'],
+     'Reporte CSV de conductores en trámite, descargado cada mañana de la vista de reportes del sistema de conductores (Sistemas MBN), por división. La materia (el asunto) de cada conductor no se publica: trae materias reservadas y nombres de terceros.'],
     ['Responsable «ya no está»',
      'El responsable aparece en la planilla de dotación de Gestión de Personas como inactivo (con fecha de término), pero el sistema todavía le tiene conductores asignados: nadie los reasignó. La dotación usada tiene corte al 31-08-2026; quien salió después todavía figura como activo.']
   ];
